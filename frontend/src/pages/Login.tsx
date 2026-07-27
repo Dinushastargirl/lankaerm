@@ -45,9 +45,21 @@ export const Login: React.FC = () => {
       navigate('/');
     } catch (err: any) {
       console.error(err);
-      setError(
-        'PostgreSQL connection refused. For testing the frontend, please click any of the Quick Demo Logins below.'
-      );
+      
+      const isNetworkError = err instanceof TypeError || err.message?.toLowerCase().includes('failed to fetch') || err.message?.toLowerCase().includes('network');
+      
+      if (isNetworkError) {
+        setError('Backend unavailable. Please verify the EMR server is running.');
+      } else {
+        const msg = err.message || '';
+        if (msg.toLowerCase().includes('database') || msg.toLowerCase().includes('jdbc') || msg.toLowerCase().includes('connection') || msg.toLowerCase().includes('datasource')) {
+          setError('Database unavailable. Please verify the PostgreSQL connection is active.');
+        } else if (msg.toLowerCase().includes('credentials') || msg.toLowerCase().includes('password') || msg.toLowerCase().includes('username') || msg.toLowerCase().includes('invalid') || msg.toLowerCase().includes('failed')) {
+          setError('Invalid credentials. Please verify your clinician sign-in credentials.');
+        } else {
+          setError(msg || 'An unexpected authentication error occurred.');
+        }
+      }
     } finally {
       setIsLoading(false);
     }

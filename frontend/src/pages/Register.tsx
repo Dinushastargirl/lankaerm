@@ -40,9 +40,18 @@ export const Register: React.FC = () => {
       }, 1500);
     } catch (err: any) {
       console.error(err);
-      setError(
-        'Database connection refused. Real registration requires a running PostgreSQL database. For evaluation, please utilize the "Quick Demo Logins" on the login page.'
-      );
+      const isNetworkError = err instanceof TypeError || err.message?.toLowerCase().includes('failed to fetch') || err.message?.toLowerCase().includes('network');
+      
+      if (isNetworkError) {
+        setError('Backend unavailable. Please verify the EMR server is running.');
+      } else {
+        const msg = err.message || '';
+        if (msg.toLowerCase().includes('database') || msg.toLowerCase().includes('jdbc') || msg.toLowerCase().includes('connection') || msg.toLowerCase().includes('datasource')) {
+          setError('Database unavailable. Please verify the PostgreSQL connection is active.');
+        } else {
+          setError(msg || 'Registration failed. Please verify connection credentials.');
+        }
+      }
     } finally {
       setIsLoading(false);
     }
