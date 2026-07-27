@@ -31,19 +31,19 @@ The Spring Boot backend is dockerized and externalized to consume database confi
 2. Select the repository `Dinushastargirl/lankaerm`.
 3. Set the **Root Directory** configuration to `backend`. Railway will automatically locate the `Dockerfile` and build the container stack.
 4. Add the following **Variables**:
-   - `PORT`: `8085` (Railway default container port mapping)
-   - `DB_URL`: The JDBC URL pointing to your Supabase/PostgreSQL instance (e.g. `jdbc:postgresql://<host>:5432/<database>`)
-   - `DB_USERNAME`: Database username.
-   - `DB_PASSWORD`: Database password.
+   - `SERVER_PORT`: `8085` (or mapped host container port)
+   - `DATABASE_URL`: The JDBC URL pointing to your Neon PostgreSQL instance (e.g. `jdbc:postgresql://<host>:5432/<database>`)
+   - `DATABASE_USERNAME`: Database username.
+   - `DATABASE_PASSWORD`: Database password.
    - `JWT_SECRET`: A secure 256-bit hexadecimal string.
 5. Trigger deployment.
 
 ---
 
-## 3. Database Provisioning (PostgreSQL / Supabase)
+## 3. Database Provisioning (Neon PostgreSQL)
 
 Lanka EMR uses a standard PostgreSQL database schema.
-1. Create a database instance on **Supabase** or **Render Databases**.
+1. Create a database instance on **Neon**.
 2. Copy the connection URI parameters (Host, Database Name, Username, and Password).
-3. Populate the backend environment variables (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`) on Railway/Render.
+3. Populate the backend environment variables (`DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`) on Railway/Render.
 4. On startup, Hibernate will automatically scan the schema and compile the necessary database tables.

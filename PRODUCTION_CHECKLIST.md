@@ -7,7 +7,7 @@ Use this checklist to verify security, performance, and host configurations befo
 ## 1. Secrets & Configurations Hardening
 - [ ] **Remove Local Database Credentials**: Ensure `backend/src/main/resources/application.yml` has zero default/fallback passwords or URLs.
 - [ ] **Generate Custom JWT Secret**: Generate a cryptographically strong 256-bit hex key and set it as `JWT_SECRET` environment variable in production.
-- [ ] **Secure Database Passwords**: Do not expose PostgreSQL/Supabase passwords in source control. Set `DB_PASSWORD` securely in the cloud dashboard.
+- [ ] **Secure Database Passwords**: Do not expose PostgreSQL/Neon passwords in source control. Set `DATABASE_PASSWORD` securely in the cloud dashboard.
 
 ---
 
