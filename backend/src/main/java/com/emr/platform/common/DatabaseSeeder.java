@@ -50,7 +50,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        if (roleRepository.count() == 0) {
+        if (userRepository.count() == 0) {
             seedDatabase();
         }
     }
