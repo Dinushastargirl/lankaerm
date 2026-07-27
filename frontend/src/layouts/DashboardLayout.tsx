@@ -21,7 +21,10 @@ import {
   ChevronRight, 
   LogOut, 
   Database,
-  ShieldCheck
+  ShieldCheck,
+  Send,
+  Bot,
+  X
 } from 'lucide-react';
 
 export const DashboardLayout: React.FC = () => {
@@ -30,6 +33,38 @@ export const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState([
+    { role: 'assistant', text: 'Hello! I am your clinical EMR co-pilot. How can I help you with patient charts, prescribing guidelines, or clinical calculations?' }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+
+  const handleSendChat = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    const userMsg = { role: 'user', text: chatInput };
+    setChatMessages(prev => [...prev, userMsg]);
+    const query = chatInput;
+    setChatInput('');
+
+    setTimeout(() => {
+      let responseText = 'Analyzing clinic context... ';
+      const lowerQuery = query.toLowerCase();
+      if (lowerQuery.includes('dengue')) {
+        responseText += 'Sri Lanka clinical guidelines suggest: Monitor hematocrit, platelet count daily. Restrict fluid intake. Restrict NSAIDs; recommend Paracetamol.';
+      } else if (lowerQuery.includes('hypertension')) {
+        responseText += 'Hypertension target: <130/80 mmHg for high-risk patients. First-line: Losartan, Amlodipine, or Enalapril. Limit sodium to <2g/day.';
+      } else if (lowerQuery.includes('vitals') || lowerQuery.includes('normal')) {
+        responseText += 'Standard clinical vitals range: BP 120/80 mmHg, Heart Rate 60-100 bpm, Temp 98.6°F (37°C), Resp Rate 12-20/min.';
+      } else if (lowerQuery.includes('search') || lowerQuery.includes('find')) {
+        responseText += 'You can query patients using the top search bar, or navigate to the Patients tab on the left.';
+      } else {
+        responseText += 'Got it. I am ready to assist. You can ask me about "Dengue guidelines", "hypertension therapy", "vitals ranges", or general navigation help.';
+      }
+      setChatMessages(prev => [...prev, { role: 'assistant', text: responseText }]);
+    }, 800);
+  };
 
   const handleLogout = () => {
     logout();
@@ -264,6 +299,77 @@ export const DashboardLayout: React.FC = () => {
         <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-950">
           <Outlet />
         </main>
+
+        {/* Floating AI Chatbot Widget */}
+        <div className="fixed bottom-6 right-6 z-50">
+          {!isChatOpen ? (
+            <button
+              onClick={() => setIsChatOpen(true)}
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-clinical-500 hover:bg-clinical-400 text-slate-950 shadow-lg shadow-clinical-500/30 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+              title="Open AI Assistant"
+            >
+              <Sparkles className="h-6 w-6 stroke-[2.2]" />
+            </button>
+          ) : (
+            <div className="w-80 sm:w-96 h-[480px] bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300">
+              {/* Header */}
+              <div className="bg-slate-900 px-4 py-3.5 border-b border-slate-800 flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-clinical-500/10 text-clinical-400">
+                    <Bot className="h-4.5 w-4.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white leading-none">Clinical AI Co-Pilot</h4>
+                    <span className="text-[10px] text-clinical-400 font-semibold mt-1 inline-block">Secure LankaMed-LLM</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsChatOpen(false)}
+                  className="text-slate-400 hover:text-white hover:bg-slate-800 h-7 w-7 rounded-lg flex items-center justify-center transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Message Pane */}
+              <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-950/50 flex flex-col">
+                {chatMessages.map((m, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`flex items-start space-x-2 max-w-[85%] ${
+                      m.role === 'user' ? 'self-end flex-row-reverse space-x-reverse' : 'self-start'
+                    }`}
+                  >
+                    <div className={`p-3 rounded-2xl text-xs leading-relaxed ${
+                      m.role === 'user' 
+                        ? 'bg-clinical-500/10 text-slate-200 border border-clinical-500/20 rounded-tr-none' 
+                        : 'bg-slate-900 text-slate-300 border border-slate-850 rounded-tl-none'
+                    }`}>
+                      {m.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Input Bar */}
+              <form onSubmit={handleSendChat} className="p-3 bg-slate-900 border-t border-slate-800 flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Ask about guidelines, vitals, or help..."
+                  className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-clinical-500 transition-all"
+                />
+                <button
+                  type="submit"
+                  className="h-8 w-8 bg-clinical-600 hover:bg-clinical-500 text-white rounded-lg flex items-center justify-center shrink-0 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
